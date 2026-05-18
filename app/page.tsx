@@ -1,65 +1,94 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useEffect } from "react";
+import Navbar from "./components/Navbar";
+import Hero from "./components/Hero";
+import Series from "./components/Series";
+import ApiFlow from "./components/ApiFlow";
+import Privacy from "./components/Privacy";
+import Stats from "./components/Stats";
+import LogoCta from "./components/LogoCta";
+import Footer from "./components/Footer";
 
 export default function Home() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    const fadeElements = document.querySelectorAll(".fade-up");
+    fadeElements.forEach((el) => observer.observe(el));
+
+    const handleClick = (e: Event) => {
+      const anchor = e.currentTarget as HTMLAnchorElement;
+      const href = anchor.getAttribute("href");
+
+      if (!href || !href.startsWith("#")) return;
+
+      const target = document.querySelector(href);
+      if (!target) return;
+
+      e.preventDefault();
+
+      const page = document.getElementById("page-wrapper");
+
+      if (!page) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+
+      page.style.transition = "transform 0.28s ease, opacity 0.28s ease";
+      page.style.transformOrigin = "center center";
+      page.style.transform = "perspective(1200px) rotateX(3deg) scale(0.985)";
+      page.style.opacity = "0.72";
+
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        setTimeout(() => {
+          page.style.transition = "transform 0.42s ease, opacity 0.42s ease";
+          page.style.transform = "perspective(1200px) rotateX(0deg) scale(1)";
+          page.style.opacity = "1";
+        }, 140);
+      }, 180);
+    };
+
+    const internalLinks = document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]');
+    internalLinks.forEach((anchor) => anchor.addEventListener("click", handleClick));
+
+    return () => {
+      observer.disconnect();
+      internalLinks.forEach((anchor) =>
+        anchor.removeEventListener("click", handleClick)
+      );
+    };
+  }, []);
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div id="page-wrapper">
+      <Navbar />
+
+      <main
+        style={{
+          position: "relative",
+          zIndex: 1,
+          overflow: "hidden",
+        }}
+      >
+        <Hero />
+        <Series />
+        <ApiFlow />
+        <Privacy />
+        <Stats />
+        <LogoCta />
+        <Footer />
       </main>
     </div>
   );
